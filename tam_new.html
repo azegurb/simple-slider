@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Slider</title>
+    <style>
+
+        #slider a {
+
+            display: none;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            z-index: -9;
+
+        }
+
+        #slider a img {
+            display: none;
+
+        }
+
+        #slider a:first-child {
+
+            display: block;
+
+
+        }
+
+        .nivo-directionNav a {
+            display: block;
+            width: 30px;
+            height: 30px;
+            background: url(arrows.png) no-repeat;
+            text-indent: -9999px;
+            border: 0;
+        }
+
+        .theme-default .nivoSlider a {
+            border: 0;
+            display: block;
+        }
+
+        a.nivo-prevNav {
+            left: 15px;
+        }
+
+        a.nivo-nextNav {
+            background-position: -30px 0;
+            right: 15px;
+        }
+
+        .nivo-directionNav a {
+            position: absolute;
+            top: 120px;
+            z-index: 9;
+            cursor: pointer;
+        }
+
+        .opClass {
+            opacity: 0.4;
+            filter: alpha(opacity=40); /* For IE8 and earlier */
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div id="slider" style="width:700px;height: 306px; position: absolute; top:0px;left:0px;">
+    <a href="#"><img src="images/banners/image-slider-1.jpg"></a>
+    <a href="#"><img src="images/banners/image-slider-2.jpg"></a>
+    <a href="#"><img src="images/banners/image-slider-3.jpg"></a>
+    <a href="#"><img src="images/banners/image-slider-4.jpg"></a>
+    <a href="#"><img src="images/banners/image-slider-5.jpg"></a>
+</div>
+<div class="nivo-directionNav" style="width:680px; position: relative"><a class="nivo-prevNav" id="prev">Prev</a><a
+        class="nivo-nextNav" id="next">Next</a></div>
+<script>
+    window.onload = function SS() {
+
+        "use strict";
+        var global = window;
+
+        var that, that1;
+        var dist = 300, duration = 10000;
+
+
+        function Slider(options) {
+
+            this.pictures = [];
+            var _=this;
+
+            this.shuffle=function(arr, currentEffect=null){
+
+                if(currentEffect==null){
+                    var index = arr.indexOf(currentEffect);
+                    if (index > -1) {
+                        arr.splice(index, 1);
+                    }
+                }
+
+                for(var j, x, i = arr.length; i; j = parseInt(Math.random() * i, 10), x = arr[--i], arr[i] = arr[j], arr[j] = x);
+
+                return arr;
+            };
+
+            this.settings = {
+                slices: 5,
+                boxes: 9,
+                step: 0,
+                en: 700,
+                boxen: 700 / 3,
+                boxhundur: 306 / 3,
+                hun: 306,
+                effect: function (t) {
+                    return 1 + (--t) * t * t * t * t
+                },
+                boxTypes:['buildSlices', 'buildSlices'],
+                animeTypes:{
+                    buildSlices:'animateSlice'
+                },
+                currentBoxType:_.shuffle(['buildSlices', 'buildSlices']),
+            }
+
+            that = this;
+
+            this.build(this.settings.step, false);
+
+
+        }
+
+        Slider.prototype.mass = function (anj) {
+
+            var elem;
+            if ((anj.nodeType === 1) && (typeof anj.style === "object") && (typeof anj.ownerDocument === "object")) {
+                elem = anj;
+            } else {
+                elem = document.createElement(anj);
+            }
+            var massEl = {};
+            massEl.el = elem;
+            massEl.set = function (name, prop) {
+                massEl.el.setAttribute(name, prop);
+                return massEl;
+            };
+            massEl.append = function (obj) {
+                obj.appendChild(massEl.el);
+                return massEl;
+            };
+            return massEl;
+
+        }
+
+        Slider.prototype.getId = function (obj) {
+
+            if (obj.split(" ").length > 1) {
+                var res = obj.split(" ");
+                return document.getElementById(res[0]).getElementsByTagName(res[1]);
+            } else {
+                return document.getElementById(obj);
+            }
+
+        };
+
+        Slider.prototype.build = function (addim, bool) {
+
+            var i = 0;
+            var en;
+            var uzun;
+            var ad;
+            var el;
+            var so;
+            if (!bool) {
+
+                while (i < this.getId("slider a").length) {
+                    en = this.getId("slider a")[i].childNodes[0].width;
+                    uzun = this.getId("slider a")[i].childNodes[0].height;
+                    so = (i + 1) % this.getId("slider a").length;
+                    ad = this.getId("slider a")[so].childNodes[0].src;
+                    this.pictures.push(this.getId("slider a")[i].childNodes[0].src);
+                    el = this.mass("div").set("id", "divin" + i).set("style", "width:" + en + "px;height:" + uzun + "px; background:url(" + ad + ")");
+                    this.getId("slider a")[i].appendChild(el.el);
+                    console.log((i + 1) % this.getId("slider a").length)
+                    i += 1;
+
+                }
+
+            }
+
+            //    console.log(this)
+
+            var effect=that.shuffle(this.settings.boxTypes, this.settings.currentBoxType);
+
+            this[effect[0]](addim);
+
+            this.settings.currentBoxType=effect[0];
+            // this.buildBoxes(addim);
+
+        };
+
+        Slider.prototype.buildSlices = function (i) {
+
+            var ad2 = this.pictures[this.settings.step];
+
+            var anadiv = this.getId("divin" + i);
+            this.getId("divin" + i).innerHTML = "";
+            var n = 0;
+            var d = 0;
+            while (n < this.settings.slices) {
+                this.mass("div")
+                    .set("id", "divs" + (i) + n)
+                    .set("style", "display:inline-block;vertical-align:bottom; float:left;overflow:hidden;width:" + this.settings.en / this.settings.slices + "px;height:" + this.settings.hun + "px; background:url(" + ad2 + ");background-position: " + (-d) + "px 0px; background-repeat:no-repat")
+                    .append(anadiv);
+                n += 1;
+                d = (this.settings.en / this.settings.slices) * n;
+            }
+            this.settings.step;
+        };
+
+        Slider.prototype.buildBoxes = function (i) {
+
+            var nm = this.getId("slider a").length - 1; //10/0---
+            //   console.log(nm)
+            var ad2 = this.pictures[nm];
+            var anadiv = this.getId("divin" + i);
+            var n = 0;
+            var d = 0;
+            while (n < this.settings.slices) {
+                this.mass("div")
+                    .set("id", "divs" + (i) + n)
+                    .set("style", "display:inline-block;vertical-align:bottom; float:left;overflow:hidden;width:" + that.settings.en / that.settings.slices + "px;height:" + this.settings.hun + "px; background:url(" + ad2 + ");background-position: " + (-d) + "px 0px; background-repeat:no-repat")
+                    .append(anadiv);
+                n += 1;
+                d = (this.settings.en / this.settings.slices) * n;
+            }
+
+        };
+
+        Slider.prototype.addEvent = function addEvent(target, functionref, tasktype) {
+            if (target.addEventListener) {
+                target.addEventListener(tasktype, functionref, false);
+            } else if (target.attachEvent) {
+                target.attachEvent("on" + tasktype, function handler() {
+                    return functionref.call(target, window.event);
+                });
+            }
+        };
+
+
+        Slider.prototype.animateSlice = function (i, bul, prog) {
+
+            this[i].bul = bul;
+
+            that1 = this;
+
+            this[i].runtime = (prog != null ? prog : 60);
+
+            var runtime = this[i].runtime + 60;
+
+            this[i].progress = this[i].runtime / duration
+
+            this[i].progress = that.settings.effect(this[i].progress);
+
+            this[i].progress = Math.min(this[i].progress, 1);
+
+            this[i].style.height = dist - (dist * this[i].progress).toFixed(2) + 'px';
+
+            if (this[i].runtime > 450 && i < this.length - 1 && this[i].bul === false) {
+
+                this[i].bul = true;
+
+                window.requestAnimationFrame(function (timestamp) {
+
+                    that.applyTo(document.getElementById("divin" + that.settings.step).childNodes, i + 1, false, null);
+
+                });
+            }
+
+            var thatbul = this[i].bul;
+
+            this[i].delid = window.requestAnimationFrame(function (timestamp) {
+
+                that.applyTo(document.getElementById("divin" + that.settings.step).childNodes, i, thatbul, runtime, this);
+                console.log(this, 'this yanimateSliceildi')
+
+                if (i == that1.length - 1 && parseInt(that1[i].style.height) >= 306) {
+
+                    global.vaxt = setTimeout(function () {
+                        that.settings.step++;
+                        if (that.settings.step > that.getId("slider a").length - 1) {
+
+                            that.getId("slider a")[that.settings.step - 1].style.display = "none";
+                            that.settings.step = 0;
+                            that.getId("slider a")[that.settings.step].style.display = "block";
+                        } else {
+
+                            that.getId("slider a")[that.settings.step - 1].style.display = "none";
+                            that.getId("slider a")[that.settings.step].style.display = "block";
+
+                        }
+
+                        //    that.getId("divin" + (0)).innerHTML = "";
+
+                        that.build(that.settings.step, true);
+
+                        that.applyTo(document.getElementById("divin" + that.settings.step).childNodes, 0, false, false);
+
+                    }, 3000)
+                }
+
+            });
+
+            if (parseInt(this[i].style.height) <= 0) {
+
+                window.cancelAnimationFrame(this[i].delid);
+                this[i].style.height = "306px";
+                this[i].style.visibility = "hidden";
+                this[i].style.borderRight = "0px solid #c0c0c0";
+
+            }
+
+
+        }
+
+
+        Slider.prototype.applyTo = function (rect=document.getElementById("divin0").childNodes, i=0, bul=false, prog=false, optional='') {
+            var r=this.settings.animeTypes[this.settings.currentBoxType];
+            this[r].call(rect, i, bul, prog);
+
+        }
+
+        var imageSlider = new Slider();
+
+        imageSlider.applyTo();
+
+    }
+
+</script>
+</body>
+</html>
