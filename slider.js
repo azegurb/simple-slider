@@ -4,27 +4,27 @@
 
     var that, that1, timerobj = {};
 
-    function Slider(options = {}) {
+    function Slider(id="slider", options = {}) {
 
         this.pictures = [];
+
+        this.id=id;
 
         var _ = this;
 
         this.shuffle = function (arr, currentEffect = null) {
 
-            if (currentEffect == null) {
+            var _arr=[];
 
-                var index = arr.indexOf(currentEffect);
+            arr.forEach(function (item){
+               if(currentEffect!=item){
+                   _arr.push(item);
+               }
+            });
 
-                if (index > -1) {
-                    arr.splice(index, 1);
-                }
+            for (var j, x, i = _arr.length; i; j = parseInt(Math.random() * i, 10), x = _arr[--i], _arr[i] = _arr[j], _arr[j] = x) ;
 
-            }
-
-            for (var j, x, i = arr.length; i; j = parseInt(Math.random() * i, 10), x = arr[--i], arr[i] = arr[j], arr[j] = x) ;
-
-            return arr;
+            return _arr;
 
         };
 
@@ -47,7 +47,7 @@
                 buildSlices: 'animateSlice',
                 buildBoxes: 'animateBox',
             },
-            currentBoxType: _.shuffle(['buildSlices', 'buildBoxes']),
+            currentBoxType: _.shuffle(['buildSlices', 'buildBoxes'])[0],
         }
 
         that = this;
@@ -99,19 +99,20 @@
             var ad;
             var el;
             var so;
+
             if (!bool) {
 
-                while (i < this.getId("slider a").length) {
-                    en = this.getId("slider a")[i].childNodes[0].width;
+                while (i < this.getId(this.id+" a").length) {
+                    en = this.getId(this.id+" a")[i].childNodes[0].width;
                     en = 700;
-                    uzun = this.getId("slider a")[i].childNodes[0].height;
+                    uzun = this.getId(this.id+" a")[i].childNodes[0].height;
                     uzun = 306;
-                    so = (i + 1) % this.getId("slider a").length;
-                    ad = this.getId("slider a")[so].childNodes[0].src;
-                    this.pictures.push(this.getId("slider a")[i].childNodes[0].src);
+                    so = (i + 1) % this.getId(this.id+" a").length;
+                    ad = this.getId(this.id+" a")[so].childNodes[0].src;
+                    this.pictures.push(this.getId(this.id+" a")[i].childNodes[0].src);
                     el = this.mass("div").set("id", "divin" + i).set("style", "width:" + en + "px;height:" + uzun + "px; background:url(" + ad + ")");
-                    this.getId("slider a")[i].appendChild(el.el);
-                    console.log((i + 1) % this.getId("slider a").length)
+                    this.getId(this.id+" a")[i].appendChild(el.el);
+                    console.log((i + 1) % this.getId(this.id+" a").length)
                     i += 1;
 
                 }
@@ -121,6 +122,7 @@
 
             var effect = that.shuffle(this.settings.boxTypes, this.settings.currentBoxType);
 
+            console.log(effect, this.settings.currentBoxType, 'current effect', effect[0]);
             this[effect[0]](addim);
 
             this.settings.currentBoxType = effect[0];
@@ -150,7 +152,7 @@
 
         buildBoxes: function (i) {
 
-            var nm = this.getId("slider a").length - 1; //10/0---
+            var nm = this.getId(this.id+" a").length - 1; //10/0---
             //   console.log(nm)
             var ad2 = this.pictures[this.settings.step];
             var anadiv = this.getId("divin" + this.settings.step);
@@ -238,16 +240,16 @@
 
             that.settings.step++;
 
-            if (that.settings.step > that.getId("slider a").length - 1) {
+            if (that.settings.step > that.getId(this.id+" a").length - 1) {
 
-                that.getId("slider a")[that.settings.step - 1].style.display = "none";
+                that.getId(this.id+" a")[that.settings.step - 1].style.display = "none";
                 that.settings.step = 0;
-                that.getId("slider a")[that.settings.step].style.display = "block";
+                that.getId(this.id+" a")[that.settings.step].style.display = "block";
 
             } else {
 
-                that.getId("slider a")[that.settings.step - 1].style.display = "none";
-                that.getId("slider a")[that.settings.step].style.display = "block";
+                that.getId(this.id+" a")[that.settings.step - 1].style.display = "none";
+                that.getId(this.id+" a")[that.settings.step].style.display = "block";
 
             }
         },
@@ -291,9 +293,6 @@
 
                 that.closeIts(obj, i, z);
 
-                var timestamp = new Date().getTime()
-                var runtime = timestamp - obj[i].starttime;
-
             });
 
 
@@ -321,7 +320,7 @@
 
         setTimer: function (obj, n, i) {
 
-            timerobj["timer" + n] = setTimeout(function () {
+            timerobj["timer"] = setTimeout(function () {
 
                 that.closeIts(obj, n, i);
 
@@ -412,8 +411,8 @@
 
     }
 
-    window.SSlider = function (options) {
-        return new Slider(options)
+    window.SSlider = function (elementId, options) {
+        return new Slider(elementId, options)
     }
 
 }()
