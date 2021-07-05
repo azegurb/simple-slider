@@ -4,22 +4,29 @@
 
     var that, that1, timerobj = {};
 
-    function Slider(id="slider", options = {}) {
+    /**
+     * Slider constructor
+     * @param id
+     * @param options optional
+     * @constructor
+     */
+
+    function Slider(id = "slider", options = {}) {
 
         this.pictures = [];
 
-        this.id=id;
+        this.id = id;
 
         var _ = this;
 
         this.shuffle = function (arr, currentEffect = null) {
 
-            var _arr=[];
+            var _arr = [];
 
-            arr.forEach(function (item){
-               if(currentEffect!=item){
-                   _arr.push(item);
-               }
+            arr.forEach(function (item) {
+                if (currentEffect != item) {
+                    _arr.push(item);
+                }
             });
 
             for (var j, x, i = _arr.length; i; j = parseInt(Math.random() * i, 10), x = _arr[--i], _arr[i] = _arr[j], _arr[j] = x) ;
@@ -28,21 +35,24 @@
 
         };
 
+        /**
+         *  Settings is object that store default options
+         */
+
         this.settings = {
             slices: 10,
-            boxes: 9,
+            boxesPerRow: 8,
+            boxesRows: 5,
             step: 0,
-            en: 700,
-            boxen: 700 / 3,
-            boxhundur: 306 / 3,
+            width: 700,
             duration: 10000,
             dist: 300,
-            hun: 306,
+            height: 306,
             effect: function (t) {
                 return 1 + (--t) * t * t * t * t
             },
             boxTypes: ['buildSlices', 'buildBoxes'],
-            // boxTypes: ['buildBoxes'],
+
             animeTypes: {
                 buildSlices: 'animateSlice',
                 buildBoxes: 'animateBox',
@@ -58,7 +68,13 @@
 
     Slider.prototype = {
 
-        mass: function (anj) {
+        /**
+         * Simple object creator method returning object of chainable methods
+         * @param anj
+         * @returns {{}}
+         * @private
+         */
+        _$: function (anj) {
 
             var elem;
             if ((anj.nodeType === 1) && (typeof anj.style === "object") && (typeof anj.ownerDocument === "object")) {
@@ -66,19 +82,25 @@
             } else {
                 elem = document.createElement(anj);
             }
-            var massEl = {};
-            massEl.el = elem;
-            massEl.set = function (name, prop) {
-                massEl.el.setAttribute(name, prop);
-                return massEl;
+            var El = {};
+            El.el = elem;
+            El.set = function (name, prop) {
+                El.el.setAttribute(name, prop);
+                return El;
             };
-            massEl.append = function (obj) {
-                obj.appendChild(massEl.el);
-                return massEl;
+            El.append = function (obj) {
+                obj.appendChild(El.el);
+                return El;
             };
-            return massEl;
+            return El;
 
         },
+
+        /**
+         * Simple selector method
+         * @param obj
+         * @returns {HTMLElement|HTMLCollectionOf<*>}
+         */
 
         getId: function (obj) {
 
@@ -91,30 +113,28 @@
 
         },
 
-        build: function (addim, bool) {
+        /**
+         * Build backgrounds from given links
+         * returns void
+         * @param step
+         * @param bool
+         */
+        build: function (step, bool) {
 
             var i = 0;
-            var en;
-            var uzun;
-            var ad;
+            var bgSource;
             var el;
             var so;
 
             if (!bool) {
 
-                while (i < this.getId(this.id+" a").length) {
-                    en = this.getId(this.id+" a")[i].childNodes[0].width;
-                    en = 700;
-                    uzun = this.getId(this.id+" a")[i].childNodes[0].height;
-                    uzun = 306;
-                    so = (i + 1) % this.getId(this.id+" a").length;
-                    ad = this.getId(this.id+" a")[so].childNodes[0].src;
-                    this.pictures.push(this.getId(this.id+" a")[i].childNodes[0].src);
-                    el = this.mass("div").set("id", "divin" + i).set("style", "width:" + en + "px;height:" + uzun + "px; background:url(" + ad + ")");
-                    this.getId(this.id+" a")[i].appendChild(el.el);
-                    console.log((i + 1) % this.getId(this.id+" a").length)
+                while (i < this.getId(this.id + " a").length) {
+                    so = (i + 1) % this.getId(this.id + " a").length;
+                    bgSource = this.getId(this.id + " a")[so].childNodes[0].src;
+                    this.pictures.push(this.getId(this.id + " a")[i].childNodes[0].src);
+                    el = this._$("div").set("id", "divin" + i).set("style", "width:" + this.settings.width + "px;height:" + this.settings.height + "px; background:url(" + bgSource + ")");
+                    this.getId(this.id + " a")[i].appendChild(el.el);
                     i += 1;
-
                 }
 
             }
@@ -122,14 +142,17 @@
 
             var effect = that.shuffle(this.settings.boxTypes, this.settings.currentBoxType);
 
-            console.log(effect, this.settings.currentBoxType, 'current effect', effect[0]);
-            this[effect[0]](addim);
+            this[effect[0]](step);
 
             this.settings.currentBoxType = effect[0];
-            // this.buildBoxes(addim);
+
 
         },
 
+        /**
+         * Make slices ready to animate
+         * @param i
+         */
         buildSlices: function (i) {
 
             var ad2 = this.pictures[this.settings.step];
@@ -139,51 +162,59 @@
             var n = 0;
             var d = 0;
             while (n < this.settings.slices) {
-                console.log(this, 'thissed');
-                this.mass("div")
+
+                this._$("div")
                     .set("id", "divs" + (i) + n)
-                    .set("style", "display:inline-block;vertical-align:bottom; float:left;overflow:hidden;width:" + this.settings.en / this.settings.slices + "px;height:" + this.settings.hun + "px; background:url(" + ad2 + ");background-position: " + (-d) + "px 0px; background-repeat:no-repat")
+                    .set("style", "display:inline-block;vertical-align:bottom; float:left;overflow:hidden;width:" + this.settings.width / this.settings.slices + "px;height:" + this.settings.height + "px; background:url(" + ad2 + ");background-position: " + (-d) + "px 0px; background-repeat:no-repat")
                     .append(anadiv);
+
                 n += 1;
-                d = (this.settings.en / this.settings.slices) * n;
+                d = (this.settings.width / this.settings.slices) * n;
             }
             this.settings.step;
         },
 
+        /**
+         * Make boxes ready to animate
+         * @param i
+         */
+
         buildBoxes: function (i) {
 
-            var nm = this.getId(this.id+" a").length - 1; //10/0---
-            //   console.log(nm)
             var ad2 = this.pictures[this.settings.step];
             var anadiv = this.getId("divin" + this.settings.step);
             this.getId("divin" + this.settings.step).innerHTML = "";
-            var n = 0;
-            var d = 0;
-            var z;
+
+            var posY;
             var y;
-            var os;
+            var posX;
             var x = 1;
 
-            var hun = 306 / 5;
-            var enn = 700 / 8;
-            var enlik = 700;
+            var boxHeight = this.settings.height/this.settings.boxesRows;
+            var boxWidth = this.settings.width / this.settings.boxesPerRow;
 
-            if(document.getElementById('maindiv1')){
-                document.getElementById('maindiv1').parentNode.innerHTML='';
+            if (document.getElementById('maindiv1')) {
+                document.getElementById('maindiv1').parentNode.innerHTML = '';
             }
-            while (x <= 5) {
-                z = -(hun * (x - 1));
+            while (x <= this.settings.boxesRows) {
+                posY = -(boxHeight * (x - 1));
                 y = 1;
-                this.mass("div").set("id", "maindiv" + x).set("style", "position:absolute;top:" + (-z) + "px; left: 0px").append(anadiv);
-                while (y <= 8) {
-                    os = enn * (y - 1);
-                    this.mass("div").set("id", "divsn" + x + y).set("style", "width:" + enlik / 8 + "px;height:" + hun + "px; background:url(" + ad2 + ");background-position: " + (-os) + "px " + z + "px;position:absolute;top:0px; left: " + os + "px").append(this.getId("maindiv" + x));
+                this._$("div").set("id", "maindiv" + x).set("style", "position:absolute;top:" + (-posY) + "px; left: 0px").append(anadiv);
+                while (y <= this.settings.boxesPerRow) {
+                    posX = (this.settings.width / this.settings.boxesPerRow) * (y - 1);
+                    this._$("div").set("id", "divsn" + x + y).set("style", "width:" + boxWidth + "px;height:" + boxHeight + "px; background:url(" + ad2 + ");background-position: " + (-posX) + "px " + posY + "px;position:absolute;top:0px; left: " + posX + "px").append(this.getId("maindiv" + x));
                     y += 1;
                 }
                 x += 1;
             }
 
         },
+
+        /**
+         * Queue rows for animating
+         * @param obj
+         * @param i
+         */
 
         animateSingleRow: function (obj, i) {
 
@@ -196,6 +227,13 @@
             }
 
         },
+
+        /**
+         * Animate box effect
+         * @param i
+         * @param bul
+         * @param prog
+         */
 
         animateBox: function (i, bul, prog) {
             var opac;
@@ -213,7 +251,7 @@
 
             let cancel = '';
 
-            var __next = function(starttime, z) {
+            var __next = function (starttime, z) {
                 var timestamp = new Date().getTime()
                 var runtime = timestamp - starttime;
                 var vaxt = z * 300;
@@ -236,23 +274,34 @@
 
         },
 
-        prepareNextSlide: function (){
+        /**
+         * configure next stage to animate
+         */
+
+        prepareNextSlide: function () {
 
             that.settings.step++;
 
-            if (that.settings.step > that.getId(this.id+" a").length - 1) {
+            if (that.settings.step > that.getId(this.id + " a").length - 1) {
 
-                that.getId(this.id+" a")[that.settings.step - 1].style.display = "none";
+                that.getId(this.id + " a")[that.settings.step - 1].style.display = "none";
                 that.settings.step = 0;
-                that.getId(this.id+" a")[that.settings.step].style.display = "block";
+                that.getId(this.id + " a")[that.settings.step].style.display = "block";
 
             } else {
 
-                that.getId(this.id+" a")[that.settings.step - 1].style.display = "none";
-                that.getId(this.id+" a")[that.settings.step].style.display = "block";
+                that.getId(this.id + " a")[that.settings.step - 1].style.display = "none";
+                that.getId(this.id + " a")[that.settings.step].style.display = "block";
 
             }
         },
+
+        /**
+         * Animate current box
+         * @param obj
+         * @param i
+         * @param z
+         */
 
         closeIts: function (obj, i, z) {
 
@@ -310,13 +359,20 @@
                 }
 
                 window.cancelAnimationFrame(obj[i].delid);
-                obj[i].style.height = `${306/5}px`;
+                obj[i].style.height = `${306 / 5}px`;
                 obj[i].style.visibility = "hidden";
                 obj[i].style.borderRight = "0px solid #c0c0c0";
 
             }
 
         },
+
+        /**
+         * Queue of animating rows
+         * @param obj
+         * @param n
+         * @param i
+         */
 
         setTimer: function (obj, n, i) {
 
@@ -327,6 +383,13 @@
             }, 150 * n);
 
         },
+
+        /**
+         * Animate current slice
+         * @param i
+         * @param bul
+         * @param prog
+         */
 
         animateSlice: function (i, bul, prog) {
 
@@ -391,12 +454,25 @@
 
         },
 
+        /**
+         * Applying animating methods to the objects
+         * @param i
+         * @param bul
+         * @param prog
+         */
+
         applyTo: function (i = 0, bul = false, prog = false) {
             var rect = document.getElementById("divin" + that.settings.step).childNodes;
             var r = this.settings.animeTypes[this.settings.currentBoxType];
             this[r].call(rect, i, bul, prog);
-            console.log(this.settings.currentBoxType, rect, 'rected');
         },
+
+        /**
+         * Event listener actions
+         * @param target
+         * @param functionref
+         * @param tasktype
+         */
 
         addEvent: function addEvent(target, functionref, tasktype) {
             if (target.addEventListener) {
@@ -411,6 +487,13 @@
 
     }
 
+    /**
+     * Private scope for Slider
+     * @param elementId
+     * @param options
+     * @returns {Slider}
+     * @constructor
+     */
     window.SSlider = function (elementId, options) {
         return new Slider(elementId, options)
     }
