@@ -16,7 +16,9 @@
         this.pictures = [];
 
         this.global = {
+
             vaxt: ''
+
         };
 
         this.id = id;
@@ -28,9 +30,13 @@
             var _arr = [];
 
             arr.forEach(function (item) {
+
                 if (currentEffect != item) {
+
                     _arr.push(item);
+
                 }
+
             });
 
             for (var j, x, i = _arr.length; i; j = parseInt(Math.random() * i, 10), x = _arr[--i], _arr[i] = _arr[j], _arr[j] = x) ;
@@ -95,24 +101,38 @@
          * @private
          */
 
-        _$: function (anj) {
+        _$: function (tagName) {
 
             var elem;
-            if ((anj.nodeType === 1) && (typeof anj.style === "object") && (typeof anj.ownerDocument === "object")) {
-                elem = anj;
+
+            if ((tagName.nodeType === 1) && (typeof tagName.style === "object") && (typeof tagName.ownerDocument === "object")) {
+
+                elem = tagName;
+
             } else {
-                elem = document.createElement(anj);
+
+                elem = document.createElement(tagName);
+
             }
+
             var El = {};
+
             El.el = elem;
+
             El.set = function (name, prop) {
+
                 El.el.setAttribute(name, prop);
+
                 return El;
             };
+
             El.append = function (obj) {
+
                 obj.appendChild(El.el);
+
                 return El;
             };
+
             return El;
 
         },
@@ -126,10 +146,15 @@
         getId: function (obj) {
 
             if (obj.split(" ").length > 1) {
+
                 var res = obj.split(" ");
+
                 return document.getElementById(res[0]).getElementsByTagName(res[1]);
+
             } else {
+
                 return document.getElementById(obj);
+
             }
 
         },
@@ -140,21 +165,31 @@
          * @param step
          * @param bool
          */
+
         build: function (step, bool) {
 
             var i = 0;
+
             var bgSource;
+
             var el;
-            var so;
+
+            var index;
 
             if (!bool) {
 
                 while (i < this.getId(this.id + " a").length) {
-                    so = (i + 1) % this.getId(this.id + " a").length;
-                    bgSource = this.getId(this.id + " a")[so].childNodes[0].src;
+
+                    index = (i + 1) % this.getId(this.id + " a").length;
+
+                    bgSource = this.getId(this.id + " a")[index].childNodes[0].src;
+
                     this.pictures.push(this.getId(this.id + " a")[i].childNodes[0].src);
+
                     el = this._$("div").set("id", "divin" + i).set("style", "width:" + this.settings.width + "px;height:" + this.settings.height + "px; background:url(" + bgSource + ")");
+
                     this.getId(this.id + " a")[i].appendChild(el.el);
+
                     i += 1;
                 }
 
@@ -174,6 +209,7 @@
          * Make slices ready to animate
          * @param i
          */
+
         buildSlices: function (i) {
 
             var picUrl = this.pictures[this.settings.step];
@@ -189,8 +225,11 @@
             while (n < this.settings.slices) {
 
                 this._$("div")
+
                     .set("id", "divs" + (i) + n)
+
                     .set("style", "display:inline-block;vertical-align:bottom; float:left;overflow:hidden;width:" + this.settings.width / this.settings.slices + "px;height:" + this.settings.height + "px; background:url(" + picUrl + ");background-position: " + (-d) + "px 0px; background-repeat:no-repat")
+
                     .append(baseBox);
 
                 n += 1;
@@ -317,7 +356,9 @@
             }
 
             window.requestAnimationFrame(function (timestamp) {
+
                 __next((new Date().getTime()) * 1, i);
+
             });
 
         },
@@ -333,12 +374,15 @@
             if (that.settings.step > that.getId(this.id + " a").length - 1) {
 
                 that.getId(this.id + " a")[that.settings.step - 1].style.display = "none";
+
                 that.settings.step = 0;
+
                 that.getId(this.id + " a")[that.settings.step].style.display = "block";
 
             } else {
 
                 that.getId(this.id + " a")[that.settings.step - 1].style.display = "none";
+
                 that.getId(this.id + " a")[that.settings.step].style.display = "block";
 
             }
@@ -364,14 +408,21 @@
             if (obj && obj[i] && parseInt(obj[i].style.height) > 0) {
 
                 if (obj && obj[i]) {
-                    var opac = 0.8 - ((306 / 5) - parseInt(obj[i].style.height)) / (306 / 5) + 0.3;
+
+                    var opac = 0.8 - ((that.settings.height / that.settings.boxesRows) - parseInt(obj[i].style.height)) / (that.settings.height / that.settings.boxesRows) + 0.3;
+
                 }
 
                 if (parseInt(obj[i].style.height) - 2 < 0) {
+
                     obj[i].style.height = '0px';
+
                     obj[i].style.width = '0px';
+
                 } else {
+
                     obj[i].style.height = parseInt(obj[i].style.height) - (parseInt(obj[i].style.height) * progress) + 'px';
+
                     obj[i].style.opacity = opac;
 
                 }
@@ -383,7 +434,9 @@
             }
 
             if (!obj[i].starttime) {
+
                 obj[i].starttime = new Date().getTime();
+
             }
 
             obj[i].delid = window.requestAnimationFrame(function (timestamp) {
@@ -407,8 +460,11 @@
                 }
 
                 window.cancelAnimationFrame(obj[i].delid);
-                obj[i].style.height = `${306 / 5}px`;
+
+                obj[i].style.height = `${that.settings.height / that.settings.boxesRows}px`;
+
                 obj[i].style.visibility = "hidden";
+
                 obj[i].style.borderRight = "0px solid #c0c0c0";
 
             }
@@ -491,8 +547,11 @@
             if (parseInt(this[i].style.height) <= 0) {
 
                 window.cancelAnimationFrame(this[i].delid);
+
                 this[i].style.height = "306px";
+
                 this[i].style.visibility = "hidden";
+
                 this[i].style.borderRight = "0px solid #c0c0c0";
 
             }
@@ -507,9 +566,13 @@
          */
 
         applyTo: function (i = 0, bul = false, prog = false) {
+
             var rect = document.getElementById("divin" + that.settings.step).childNodes;
+
             var r = this.settings.animeTypes[this.settings.currentBoxType];
+
             this[r].call(rect, i, bul, prog);
+
         },
 
         /**
@@ -541,7 +604,9 @@
      */
 
     window.SSlider = function (elementId, options) {
+
         return new Slider(elementId, options)
+
     }
 
 }()
