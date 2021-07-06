@@ -15,6 +15,10 @@
 
         this.pictures = [];
 
+        this.global = {
+            vaxt: ''
+        };
+
         this.id = id;
 
         var _ = this;
@@ -217,7 +221,7 @@
 
             var x = 1;
 
-            var boxHeight = this.settings.height/this.settings.boxesRows;
+            var boxHeight = this.settings.height / this.settings.boxesRows;
 
             var boxWidth = this.settings.width / this.settings.boxesPerRow;
 
@@ -304,7 +308,7 @@
 
                 }
 
-                cancel = requestAnimationFrame(function (){
+                cancel = requestAnimationFrame(function () {
 
                     __next(starttime * 1, z);
 
@@ -441,7 +445,7 @@
 
             var self = this;
 
-            this[i].runtime = (prog != null ? prog : 60)+ 60;
+            this[i].runtime = (prog != null ? prog : 60) + 60;
 
             this[i].progress = that.settings.effect(this[i].runtime / that.settings.duration);
 
@@ -475,6 +479,8 @@
                         that.build(that.settings.step, true);
 
                         that.applyTo(0, false, false);
+
+                        window.clearTimeout(that.global.vaxt);
 
                     }, 3000);
 
@@ -533,6 +539,7 @@
      * @returns {Slider}
      * @constructor
      */
+
     window.SSlider = function (elementId, options) {
         return new Slider(elementId, options)
     }
