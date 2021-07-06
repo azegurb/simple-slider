@@ -2,7 +2,7 @@
 
     "use strict";
 
-    var that, that1, timerobj = {};
+    var that, timerobj = {};
 
     /**
      * Slider constructor
@@ -40,23 +40,39 @@
          */
 
         this.settings = {
+
             slices: 10,
+
             boxesPerRow: 8,
+
             boxesRows: 5,
+
             step: 0,
+
             width: 700,
+
             duration: 10000,
+
             dist: 300,
+
             height: 306,
+
             effect: function (t) {
+
                 return 1 + (--t) * t * t * t * t
+
             },
+
             boxTypes: ['buildSlices', 'buildBoxes'],
 
             animeTypes: {
+
                 buildSlices: 'animateSlice',
+
                 buildBoxes: 'animateBox',
+
             },
+
             currentBoxType: _.shuffle(['buildSlices', 'buildBoxes'])[0],
         }
 
@@ -74,6 +90,7 @@
          * @returns {{}}
          * @private
          */
+
         _$: function (anj) {
 
             var elem;
@@ -155,23 +172,28 @@
          */
         buildSlices: function (i) {
 
-            var ad2 = this.pictures[this.settings.step];
+            var picUrl = this.pictures[this.settings.step];
 
-            var anadiv = this.getId("divin" + this.settings.step);
+            var baseBox = this.getId("divin" + this.settings.step);
+
             this.getId("divin" + i).innerHTML = "";
+
             var n = 0;
+
             var d = 0;
+
             while (n < this.settings.slices) {
 
                 this._$("div")
                     .set("id", "divs" + (i) + n)
-                    .set("style", "display:inline-block;vertical-align:bottom; float:left;overflow:hidden;width:" + this.settings.width / this.settings.slices + "px;height:" + this.settings.height + "px; background:url(" + ad2 + ");background-position: " + (-d) + "px 0px; background-repeat:no-repat")
-                    .append(anadiv);
+                    .set("style", "display:inline-block;vertical-align:bottom; float:left;overflow:hidden;width:" + this.settings.width / this.settings.slices + "px;height:" + this.settings.height + "px; background:url(" + picUrl + ");background-position: " + (-d) + "px 0px; background-repeat:no-repat")
+                    .append(baseBox);
 
                 n += 1;
+
                 d = (this.settings.width / this.settings.slices) * n;
             }
-            this.settings.step;
+
         },
 
         /**
@@ -181,31 +203,50 @@
 
         buildBoxes: function (i) {
 
-            var ad2 = this.pictures[this.settings.step];
-            var anadiv = this.getId("divin" + this.settings.step);
+            var picUrl = this.pictures[this.settings.step];
+
+            var baseBox = this.getId("divin" + this.settings.step);
+
             this.getId("divin" + this.settings.step).innerHTML = "";
 
             var posY;
+
             var y;
+
             var posX;
+
             var x = 1;
 
             var boxHeight = this.settings.height/this.settings.boxesRows;
+
             var boxWidth = this.settings.width / this.settings.boxesPerRow;
 
             if (document.getElementById('maindiv1')) {
+
                 document.getElementById('maindiv1').parentNode.innerHTML = '';
+
             }
+
             while (x <= this.settings.boxesRows) {
+
                 posY = -(boxHeight * (x - 1));
+
                 y = 1;
-                this._$("div").set("id", "maindiv" + x).set("style", "position:absolute;top:" + (-posY) + "px; left: 0px").append(anadiv);
+
+                this._$("div").set("id", "maindiv" + x).set("style", "position:absolute;top:" + (-posY) + "px; left: 0px").append(baseBox);
+
                 while (y <= this.settings.boxesPerRow) {
+
                     posX = (this.settings.width / this.settings.boxesPerRow) * (y - 1);
-                    this._$("div").set("id", "divsn" + x + y).set("style", "width:" + boxWidth + "px;height:" + boxHeight + "px; background:url(" + ad2 + ");background-position: " + (-posX) + "px " + posY + "px;position:absolute;top:0px; left: " + posX + "px").append(this.getId("maindiv" + x));
+
+                    this._$("div").set("id", "divsn" + x + y).set("style", "width:" + boxWidth + "px;height:" + boxHeight + "px; background:url(" + picUrl + ");background-position: " + (-posX) + "px " + posY + "px;position:absolute;top:0px; left: " + posX + "px").append(this.getId("maindiv" + x));
+
                     y += 1;
+
                 }
+
                 x += 1;
+
             }
 
         },
@@ -217,8 +258,6 @@
          */
 
         animateSingleRow: function (obj, i) {
-
-            var progress = 0.01 * 3;
 
             for (var n = 0; n <= obj.length - 1; n++) {
 
@@ -236,35 +275,40 @@
          */
 
         animateBox: function (i, bul, prog) {
-            var opac;
-            var progress = 0.01 * 3;
 
-            this[i].bul = bul;
+            var self = this;
 
-            that1 = this;
+            that.animateSingleRow(this[i].childNodes, i);
 
-            this[i].runtime = (prog != null ? prog : 60);
-
-            let obj = this[i].childNodes;
-
-            that.animateSingleRow(obj, i);
-
-            let cancel = '';
+            var cancel = '';
 
             var __next = function (starttime, z) {
+
                 var timestamp = new Date().getTime()
+
                 var runtime = timestamp - starttime;
+
                 var vaxt = z * 300;
-                if (z * 1 < that1.length - 1 && runtime > vaxt) {
+
+                if (z * 1 < self.length - 1 && runtime > vaxt) {
+
                     z = z + 1;
-                    that.animateSingleRow(that1[z].childNodes, z);
+
+                    that.animateSingleRow(self[z].childNodes, z);
+
                 }
-                if (z * 1 >= that1.length - 1) {
+
+                if (z * 1 >= self.length - 1) {
+
                     window.cancelAnimationFrame(cancel);
 
                 }
 
-                cancel = requestAnimationFrame(() => __next(starttime * 1, z));
+                cancel = requestAnimationFrame(function (){
+
+                    __next(starttime * 1, z);
+
+                });
 
             }
 
@@ -395,15 +439,11 @@
 
             this[i].bul = bul;
 
-            that1 = this;
+            var self = this;
 
-            this[i].runtime = (prog != null ? prog : 60);
+            this[i].runtime = (prog != null ? prog : 60)+ 60;
 
-            var runtime = this[i].runtime + 60;
-
-            this[i].progress = this[i].runtime / that.settings.duration
-
-            this[i].progress = that.settings.effect(this[i].progress);
+            this[i].progress = that.settings.effect(this[i].runtime / that.settings.duration);
 
             this[i].progress = Math.min(this[i].progress, 1);
 
@@ -424,9 +464,9 @@
 
             this[i].delid = window.requestAnimationFrame(function (timestamp) {
 
-                that.applyTo(i, thatbul, runtime, this);
+                that.applyTo(i, thatbul, self[i].runtime, this);
 
-                if (i == that1.length - 1 && parseInt(that1[i].style.height) >= 306) {
+                if (i == self.length - 1 && parseInt(self[i].style.height) >= 306) {
 
                     that.global.vaxt = setTimeout(function () {
 
@@ -450,7 +490,6 @@
                 this[i].style.borderRight = "0px solid #c0c0c0";
 
             }
-
 
         },
 
