@@ -448,7 +448,7 @@
 
             if (parseInt(obj[i].style.height) <= 0) {
 
-                if (i == obj.length - 1 && z == 4) {
+                if (i == obj.length - 1 && z == that.settings.boxesRows-1) {
 
                     window.cancelAnimationFrame(obj[i].delid);
 
@@ -457,6 +457,9 @@
                     that.build(that.settings.step, true);
 
                     that.applyTo(0, false, false);
+
+                    window.clearTimeout(timerobj["timer"]);
+
                 }
 
                 window.cancelAnimationFrame(obj[i].delid);
